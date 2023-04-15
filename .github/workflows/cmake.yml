@@ -1,0 +1,66 @@
+name: Compile and Release Qt6 Project
+on:
+  push:
+    branches: [ "master" ]
+env:
+  QT_VERSION:  "6.4.2"
+  MINGW_ARCH:  "win64_mingw"
+  MINGW_PATH:  "mingw81_64"
+  BUILD_TYPE:   Release  
+
+jobs:
+  build-programm:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: ${{ env.QT_VERSION }}
+          arch: ${{ env.MINGW_ARCH }}
+          host: 'windows'
+          target: 'desktop'
+          dir: "${{github.workspace}}/qt"
+          install-deps: "true"
+          setup-python: "false"
+          cache: "true"
+      
+      - name: Configure CMake Project
+        working-directory: ${{github.workspace}}
+        run: cmake -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -G "MinGW Makefiles" -B ${{github.workspace}}/build
+      
+      - name: Build project
+        working-directory: ${{github.workspace}}/build
+        run:  mingw32-make.exe
+        
+      - name: Compress portable program
+        run: |
+          mkdir ${{github.workspace}}\build\all\
+          cp ${{github.workspace}}/build/WHGBot.exe ${{github.workspace}}\build\all\
+          cd ${{github.workspace}}\build\all\
+          windeployqt.exe WHGBot.exe --release
+          ls
+      - name: Archive project
+        uses: thedoctor0/zip-release@main
+        with:
+          path: ${{github.workspace}}\build\all\
+          filename: 'WHGBot.zip'
+      
+      - name: Create GitHub Release
+        id: create-new-release
+        uses: actions/create-release@v1
+        env:
+           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v0.${{ github.run_number}}
+          release_name: Release  0.${{ github.run_number }}
+        
+      - name: Upload release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create-new-release.outputs.upload_url }}
+          asset_path: ./WHGBot.zip
+          asset_name: WHGBot-v0.${{ github.run_number }}.zip
+          asset_content_type: application/zip
