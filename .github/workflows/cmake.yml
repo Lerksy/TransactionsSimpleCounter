@@ -36,7 +36,7 @@ jobs:
       - name: Compress portable program
         run: |
           mkdir ${{github.workspace}}\build\all\
-          cp ${{github.workspace}}/build/TransactionsCounter.exe ${{github.workspace}}\build\all\
+          cp ${{github.workspace}}/build/TransactionsSimpleCounter.exe ${{github.workspace}}\build\all\
           cd ${{github.workspace}}\build\all\
           windeployqt.exe TransactionsCounter.exe --release
           ls
