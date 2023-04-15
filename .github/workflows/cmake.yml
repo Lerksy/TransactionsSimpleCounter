@@ -10,7 +10,7 @@ env:
 
 jobs:
   build-programm:
-    runs-on: self-hosted
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
       - name: Install Qt
