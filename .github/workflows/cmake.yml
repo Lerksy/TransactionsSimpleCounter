@@ -22,8 +22,6 @@ jobs:
           target: 'desktop'
           dir: "${{github.workspace}}/qt"
           install-deps: "true"
-          setup-python: "false"
-          cache: "true"
       
       - name: Configure CMake Project
         working-directory: ${{github.workspace}}
@@ -38,7 +36,7 @@ jobs:
           mkdir ${{github.workspace}}\build\all\
           cp ${{github.workspace}}/build/TransactionsCounter.exe ${{github.workspace}}\build\all\
           cd ${{github.workspace}}\build\all\
-          windeployqt.exe TransactionsCounter.exe --release
+          windeployqt.exe TransactionsCounter.exe
           ls
       - name: Archive project
         uses: thedoctor0/zip-release@main
